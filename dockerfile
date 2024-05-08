@@ -10,5 +10,5 @@ RUN npm build
 FROM nginx:1.25-alpine
 ENV API host.docker.internal:8080
 COPY nginx/default.conf.template /etc/nginx/templates/default.conf.template
-COPY /build /usr/share/nginx/html
+COPY /dist /usr/share/nginx/html
 EXPOSE 80
