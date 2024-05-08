@@ -1,6 +1,6 @@
 # stage1 - build react app first 
-FROM ubuntu:latest as build
-WORKDIR /usr/src/app
+FROM node as build
+WORKDIR /app
 # ARG REACT_APP_API_BASE_ADRESS
 COPY . ./
 RUN npm ci
