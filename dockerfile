@@ -4,7 +4,7 @@ WORKDIR /app
 # ARG REACT_APP_API_BASE_ADRESS
 COPY . ./
 RUN npm ci
-RUN npm build
+RUN npm run build
 
 # stage 2 - build the final image and copy the react build files
 FROM nginx:1.25-alpine
