@@ -9,7 +9,7 @@ import { OptionSelectConfig, OptionSelectItem } from "./abstact-option-select-ui
 import { Tutorial, handleTutorial } from "../tutorial";
 import { updateUserInfo } from "../account";
 import i18next from '../plugins/i18n';
-import {Button} from "../enums/buttons";
+import { Button } from "../enums/buttons";
 
 export enum MenuOptions {
   GAME_SETTINGS,
@@ -47,14 +47,14 @@ export default class MenuUiHandler extends MessageUiHandler {
     super(scene, mode);
 
     this.ignoredMenuOptions = !bypassLogin
-      ? [ ]
-      : [ MenuOptions.LOG_OUT ];
+      ? []
+      : [MenuOptions.LOG_OUT];
     this.menuOptions = Utils.getEnumKeys(MenuOptions).map(m => parseInt(MenuOptions[m]) as MenuOptions).filter(m => !this.ignoredMenuOptions.includes(m));
   }
 
   setup() {
     const ui = this.getUi();
-    
+
     this.menuContainer = this.scene.add.container(1, -(this.scene.game.canvas.height / 6) + 1);
 
     this.menuContainer.setInteractive(new Phaser.Geom.Rectangle(0, 0, this.scene.game.canvas.width / 6, this.scene.game.canvas.height / 6), Phaser.Geom.Rectangle.Contains);
@@ -65,7 +65,7 @@ export default class MenuUiHandler extends MessageUiHandler {
 
     this.optionSelectText = addTextObject(this.scene, 0, 0, this.menuOptions.map(o => `${i18next.t(`menuUiHandler:${MenuOptions[o]}`)}`).join('\n'), TextStyle.WINDOW, { maxLines: this.menuOptions.length });
     this.optionSelectText.setLineSpacing(12);
-    
+
     this.menuBg = addWindow(this.scene, (this.scene.game.canvas.width / 6) - (this.optionSelectText.displayWidth + 25), 0, this.optionSelectText.displayWidth + 23, (this.scene.game.canvas.height / 6) - 2);
     this.menuBg.setOrigin(0, 0);
 
@@ -99,7 +99,7 @@ export default class MenuUiHandler extends MessageUiHandler {
         const config: OptionSelectConfig = {
           options: new Array(5).fill(null).map((_, i) => i).filter(slotFilter).map(i => {
             return {
-              label: i18next.t('menuUiHandler:slot', {slotNumber: i+1}),
+              label: i18next.t('menuUiHandler:slot', { slotNumber: i + 1 }),
               handler: () => {
                 callback(i);
                 ui.revertMode();
@@ -121,16 +121,16 @@ export default class MenuUiHandler extends MessageUiHandler {
       });
     };
 
-    if (Utils.isLocal) {
-      manageDataOptions.push({
-        label: i18next.t("menuUiHandler:importSession"),
-        handler: () => {
-          confirmSlot(i18next.t("menuUiHandler:importSlotSelect"), () => true, slotId => this.scene.gameData.importData(GameDataType.SESSION, slotId));
-          return true;
-        },
-        keepOpen: true
-      });
-    }
+
+    manageDataOptions.push({
+      label: i18next.t("menuUiHandler:importSession"),
+      handler: () => {
+        confirmSlot(i18next.t("menuUiHandler:importSlotSelect"), () => true, slotId => this.scene.gameData.importData(GameDataType.SESSION, slotId));
+        return true;
+      },
+      keepOpen: true
+    });
+
     manageDataOptions.push({
       label: i18next.t("menuUiHandler:exportSession"),
       handler: () => {
@@ -151,16 +151,16 @@ export default class MenuUiHandler extends MessageUiHandler {
       },
       keepOpen: true
     });
-    if (Utils.isLocal) {
-      manageDataOptions.push({
-        label: i18next.t("menuUiHandler:importData"),
-        handler: () => {
-          this.scene.gameData.importData(GameDataType.SYSTEM);
-          return true;
-        },
-        keepOpen: true
-      });
-    }
+
+    manageDataOptions.push({
+      label: i18next.t("menuUiHandler:importData"),
+      handler: () => {
+        this.scene.gameData.importData(GameDataType.SYSTEM);
+        return true;
+      },
+      keepOpen: true
+    });
+
     manageDataOptions.push(
       {
         label: i18next.t("menuUiHandler:exportData"),
@@ -334,7 +334,7 @@ export default class MenuUiHandler extends MessageUiHandler {
       success = true;
       ui.revertMode().then(result => {
         if (!result)
-           ui.setMode(Mode.MESSAGE);
+          ui.setMode(Mode.MESSAGE);
       });
     } else {
       switch (button) {
