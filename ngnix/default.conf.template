@@ -1,0 +1,17 @@
+upstream api {
+    server ${API};
+}
+
+server {
+    listen 80;
+    root /usr/share/nginx/html;
+    index index.html index.html;
+
+    location /api {
+        proxy_pass http://api;
+    }
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}

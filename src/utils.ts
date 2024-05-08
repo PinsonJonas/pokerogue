@@ -7,25 +7,25 @@ export function toReadableString(str: string): string {
 export function randomString(length: integer, seeded: boolean = false) {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let result = '';
-  
+
   for (let i = 0; i < length; i++) {
     const randomIndex = seeded ? randSeedInt(characters.length) : Math.floor(Math.random() * characters.length);
     result += characters[randomIndex];
   }
-  
+
   return result;
 }
 
 export function shiftCharCodes(str: string, shiftCount: integer) {
   if (!shiftCount)
     shiftCount = 0;
-  
+
   let newStr = '';
 
   for (let i = 0; i < str.length; i++) {
-      let charCode = str.charCodeAt(i);
-      let newCharCode = charCode + shiftCount;
-      newStr += String.fromCharCode(newCharCode);
+    let charCode = str.charCodeAt(i);
+    let newCharCode = charCode + shiftCount;
+    newStr += String.fromCharCode(newCharCode);
   }
 
   return newStr;
@@ -144,11 +144,11 @@ export function getPlayTimeString(totalSeconds: integer): string {
 }
 
 export function binToDec(input: string): integer {
-  let place: integer[] = []; 
+  let place: integer[] = [];
   let binary: string[] = [];
-  
+
   let decimalNum = 0;
-  
+
   for (let i = 0; i < input.length; i++) {
     binary.push(input[i]);
     place.push(Math.pow(2, i));
@@ -220,10 +220,10 @@ export function executeIf<T>(condition: boolean, promiseFunc: () => Promise<T>):
 }
 
 export const sessionIdKey = 'pokerogue_sessionId';
-export const isLocal = window.location.hostname === 'localhost';
-export const serverUrl = isLocal ? 'http://localhost:8001' : '';
-export const apiUrl = isLocal ? serverUrl : 'https://api.pokerogue.net';
-export const fallbackApiUrl = isLocal ? serverUrl : 'api';
+export const isLocal = true;
+export const serverUrl = isLocal ? 'api/' : 'api/';
+export const apiUrl = isLocal ? serverUrl : 'api/';
+export const fallbackApiUrl = isLocal ? serverUrl : 'api/';
 
 export function setCookie(cName: string, cValue: string): void {
   const expiration = new Date();
@@ -324,8 +324,8 @@ export function fixedInt(value: integer): integer {
 export function rgbToHsv(r: integer, g: integer, b: integer) {
   let v = Math.max(r, g, b);
   let c = v - Math.min(r, g, b);
-  let h = c && ((v === r) ? (g - b) / c : ((v === g) ? 2 + (b - r) / c : 4 + (r - g) / c)); 
-  return [ 60 * (h < 0 ? h + 6 : h), v && c / v, v];
+  let h = c && ((v === r) ? (g - b) / c : ((v === g) ? 2 + (b - r) / c : 4 + (r - g) / c));
+  return [60 * (h < 0 ? h + 6 : h), v && c / v, v];
 }
 
 /**
@@ -334,8 +334,8 @@ export function rgbToHsv(r: integer, g: integer, b: integer) {
  * @param {Array} rgb2 Second RGB color in array
  */
 export function deltaRgb(rgb1: integer[], rgb2: integer[]): integer {
-  const [ r1, g1, b1 ] = rgb1;
-  const [ r2, g2, b2 ] = rgb2;
+  const [r1, g1, b1] = rgb1;
+  const [r2, g2, b2] = rgb2;
   const drp2 = Math.pow(r1 - r2, 2);
   const dgp2 = Math.pow(g1 - g2, 2);
   const dbp2 = Math.pow(b1 - b2, 2);
@@ -347,10 +347,10 @@ export function deltaRgb(rgb1: integer[], rgb2: integer[]): integer {
 export function rgbHexToRgba(hex: string) {
   const color = hex.match(/^([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i);
   return {
-      r: parseInt(color[1], 16),
-      g: parseInt(color[2], 16),
-      b: parseInt(color[3], 16),
-      a: 255
+    r: parseInt(color[1], 16),
+    g: parseInt(color[2], 16),
+    b: parseInt(color[3], 16),
+    a: 255
   };
 }
 
