@@ -9,6 +9,6 @@ RUN npm run build
 # stage 2 - build the final image and copy the react build files
 FROM nginx:1.25-alpine
 ENV API host.docker.internal:8080
-COPY --from=build nginx/default.conf.template /etc/nginx/templates/default.conf.template
-COPY --from=build /dist /usr/share/nginx/html
+COPY --from=build /app/nginx/default.conf.template /etc/nginx/templates/default.conf.template
+COPY --from=build /app/dist /usr/share/nginx/html
 EXPOSE 80
