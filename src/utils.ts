@@ -220,10 +220,12 @@ export function executeIf<T>(condition: boolean, promiseFunc: () => Promise<T>):
 }
 
 export const sessionIdKey = 'pokerogue_sessionId';
+
 export const isLocal = true;
 export const serverUrl = isLocal ? 'api' : 'api';
 export const apiUrl = isLocal ? serverUrl : 'api';
 export const fallbackApiUrl = isLocal ? serverUrl : 'api';
+
 
 export function setCookie(cName: string, cValue: string): void {
   const expiration = new Date();
@@ -244,7 +246,7 @@ export function getCookie(cName: string): string {
   return '';
 }
 
-export function apiFetch(path: string, authed: boolean = false, fallback: boolean = false): Promise<Response> {
+export function apiFetch(path: string, authed: boolean = false): Promise<Response> {
   return new Promise((resolve, reject) => {
     const request = {};
     if (authed) {
@@ -252,22 +254,13 @@ export function apiFetch(path: string, authed: boolean = false, fallback: boolea
       if (sId)
         request['headers'] = { 'Authorization': sId };
     }
-    fetch(`${!fallback ? apiUrl : fallbackApiUrl}/${path}`, request)
-      .then(response => {
-        if (!response.ok && response.status === 404 && !fallback)
-          return apiFetch(path, authed, true).then(res => resolve(res));
-        resolve(response);
-      })
-      .catch(err => {
-        if (fallback)
-          reject(err);
-        else
-          apiFetch(path, authed, true).then(res => resolve(res));
-      });
+    fetch(`${apiUrl}/${path}`, request)
+      .then(response => resolve(response))
+      .catch(err => reject(err));
   });
 }
 
-export function apiPost(path: string, data?: any, contentType: string = 'application/json', authed: boolean = false, fallback: boolean = false): Promise<Response> {
+export function apiPost(path: string, data?: any, contentType: string = 'application/json', authed: boolean = false): Promise<Response> {
   return new Promise((resolve, reject) => {
     const headers = {
       'Accept': contentType,
@@ -278,14 +271,9 @@ export function apiPost(path: string, data?: any, contentType: string = 'applica
       if (sId)
         headers['Authorization'] = sId;
     }
-    fetch(`${!fallback ? apiUrl : fallbackApiUrl}/${path}`, { method: 'POST', headers: headers, body: data })
+    fetch(`${apiUrl}/${path}`, { method: 'POST', headers: headers, body: data })
       .then(response => resolve(response))
-      .catch(err => {
-        if (fallback)
-          reject(err);
-        else
-          apiPost(path, data, contentType, authed, true).then(res => resolve(res));
-      });
+      .catch(err => reject(err));
   });
 }
 
