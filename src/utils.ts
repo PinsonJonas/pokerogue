@@ -16,6 +16,7 @@ export function randomString(length: integer, seeded: boolean = false) {
     result += characters[randomIndex];
   }
 
+
   return result;
 }
 
@@ -209,23 +210,23 @@ export function formatLargeNumber(count: integer, threshold: integer): string {
   const ret = count.toString();
   let suffix = "";
   switch (Math.ceil(ret.length / 3) - 1) {
-  case 1:
-    suffix = "K";
-    break;
-  case 2:
-    suffix = "M";
-    break;
-  case 3:
-    suffix = "B";
-    break;
-  case 4:
-    suffix = "T";
-    break;
-  case 5:
-    suffix = "q";
-    break;
-  default:
-    return "?";
+    case 1:
+      suffix = "K";
+      break;
+    case 2:
+      suffix = "M";
+      break;
+    case 3:
+      suffix = "B";
+      break;
+    case 4:
+      suffix = "T";
+      break;
+    case 5:
+      suffix = "q";
+      break;
+    default:
+      return "?";
   }
   const digits = ((ret.length + 2) % 3) + 1;
   let decimalNumber = ret.slice(digits, digits + 2);
@@ -278,19 +279,12 @@ export function executeIf<T>(condition: boolean, promiseFunc: () => Promise<T>):
   return condition ? promiseFunc() : new Promise<T>(resolve => resolve(null));
 }
 
-export const sessionIdKey = "pokerogue_sessionId";
-// Check if the current hostname is 'localhost' or an IP address, and ensure a port is specified
-export const isLocal = (
-  (window.location.hostname === "localhost" ||
-   /^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/.test(window.location.hostname)) &&
-  window.location.port !== "") || window.location.hostname === "";
+export const sessionIdKey = 'pokerogue_sessionId';
 
-export const localServerUrl = import.meta.env.VITE_SERVER_URL ?? `http://${window.location.hostname}:${window.location.port+1}`;
-
-// Set the server URL based on whether it's local or not
-export const serverUrl = isLocal ? localServerUrl : "";
-export const apiUrl = isLocal ? serverUrl : "https://api.pokerogue.net";
-// used to disable api calls when isLocal is true and a server is not found
+export const isLocal = true;
+export const serverUrl = isLocal ? 'api' : 'api';
+export const apiUrl = isLocal ? serverUrl : 'api';
+export const fallbackApiUrl = isLocal ? serverUrl : 'api';
 export let isLocalServerConnected = true;
 
 export function setCookie(cName: string, cValue: string): void {
@@ -340,7 +334,7 @@ export function apiFetch(path: string, authed: boolean = false): Promise<Respons
     fetch(`${apiUrl}/${path}`, request)
       .then(response => resolve(response))
       .catch(err => reject(err));
-  }) : new Promise(() => {});
+  }) : new Promise(() => { });
 }
 
 export function apiPost(path: string, data?: any, contentType: string = "application/json", authed: boolean = false): Promise<Response> {
@@ -358,7 +352,7 @@ export function apiPost(path: string, data?: any, contentType: string = "applica
     fetch(`${apiUrl}/${path}`, { method: "POST", headers: headers, body: data })
       .then(response => resolve(response))
       .catch(err => reject(err));
-  }) : new Promise(() => {});
+  }) : new Promise(() => { });
 }
 
 export class BooleanHolder {
@@ -397,7 +391,7 @@ export function rgbToHsv(r: integer, g: integer, b: integer) {
   const v = Math.max(r, g, b);
   const c = v - Math.min(r, g, b);
   const h = c && ((v === r) ? (g - b) / c : ((v === g) ? 2 + (b - r) / c : 4 + (r - g) / c));
-  return [ 60 * (h < 0 ? h + 6 : h), v && c / v, v];
+  return [60 * (h < 0 ? h + 6 : h), v && c / v, v];
 }
 
 /**
@@ -406,8 +400,8 @@ export function rgbToHsv(r: integer, g: integer, b: integer) {
  * @param {Array} rgb2 Second RGB color in array
  */
 export function deltaRgb(rgb1: integer[], rgb2: integer[]): integer {
-  const [ r1, g1, b1 ] = rgb1;
-  const [ r2, g2, b2 ] = rgb2;
+  const [r1, g1, b1] = rgb1;
+  const [r2, g2, b2] = rgb2;
   const drp2 = Math.pow(r1 - r2, 2);
   const dgp2 = Math.pow(g1 - g2, 2);
   const dbp2 = Math.pow(b1 - b2, 2);
@@ -443,17 +437,17 @@ export function verifyLang(lang?: string): boolean {
   }
 
   switch (lang) {
-  case "es":
-  case "fr":
-  case "de":
-  case "it":
-  case "zh_CN":
-  case "zh_TW":
-  case "pt_BR":
-  case "ko":
-    return true;
-  default:
-    return false;
+    case "es":
+    case "fr":
+    case "de":
+    case "it":
+    case "zh_CN":
+    case "zh_TW":
+    case "pt_BR":
+    case "ko":
+      return true;
+    default:
+      return false;
   }
 }
 
@@ -463,7 +457,7 @@ export function verifyLang(lang?: string): boolean {
  */
 export function printContainerList(container: Phaser.GameObjects.Container): void {
   console.log(container.list.map(go => {
-    return {type: go.type, name: go.name};
+    return { type: go.type, name: go.name };
   }));
 }
 
