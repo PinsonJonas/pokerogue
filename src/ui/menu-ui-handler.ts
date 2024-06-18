@@ -4,12 +4,12 @@ import { Mode } from "./ui";
 import * as Utils from "../utils";
 import { addWindow } from "./ui-theme";
 import MessageUiHandler from "./message-ui-handler";
-import { GameDataType } from "../system/game-data";
 import { OptionSelectConfig, OptionSelectItem } from "./abstact-option-select-ui-handler";
 import { Tutorial, handleTutorial } from "../tutorial";
 import { updateUserInfo } from "../account";
-import i18next from "../plugins/i18n";
-import { Button } from "../enums/buttons";
+import i18next from "i18next";
+import {Button} from "#enums/buttons";
+import { GameDataType } from "#enums/game-data-type";
 
 export enum MenuOptions {
   GAME_SETTINGS,
@@ -24,9 +24,10 @@ export enum MenuOptions {
   LOG_OUT
 }
 
-const wikiUrl = "https://wiki.pokerogue.net";
+const wikiUrl = "https://wiki.pokerogue.net/start";
 const discordUrl = "https://discord.gg/uWpTfdKG49";
 const githubUrl = "https://github.com/pagefaultgames/pokerogue";
+const redditUrl = "https://www.reddit.com/r/pokerogue";
 
 export default class MenuUiHandler extends MessageUiHandler {
   private menuContainer: Phaser.GameObjects.Container;
@@ -47,8 +48,8 @@ export default class MenuUiHandler extends MessageUiHandler {
     super(scene, mode);
 
     this.ignoredMenuOptions = !bypassLogin
-      ? []
-      : [MenuOptions.LOG_OUT];
+      ? [ ]
+      : [ MenuOptions.LOG_OUT ];
     this.menuOptions = Utils.getEnumKeys(MenuOptions).map(m => parseInt(MenuOptions[m]) as MenuOptions).filter(m => !this.ignoredMenuOptions.includes(m));
   }
 
@@ -99,7 +100,7 @@ export default class MenuUiHandler extends MessageUiHandler {
         const config: OptionSelectConfig = {
           options: new Array(5).fill(null).map((_, i) => i).filter(slotFilter).map(i => {
             return {
-              label: i18next.t("menuUiHandler:slot", { slotNumber: i + 1 }),
+              label: i18next.t("menuUiHandler:slot", {slotNumber: i+1}),
               handler: () => {
                 callback(i);
                 ui.revertMode();
@@ -121,16 +122,16 @@ export default class MenuUiHandler extends MessageUiHandler {
       });
     };
 
-
-    manageDataOptions.push({
-      label: i18next.t("menuUiHandler:importSession"),
-      handler: () => {
-        confirmSlot(i18next.t("menuUiHandler:importSlotSelect"), () => true, slotId => this.scene.gameData.importData(GameDataType.SESSION, slotId));
-        return true;
-      },
-      keepOpen: true
-    });
-
+    if (Utils.isLocal) {
+      manageDataOptions.push({
+        label: i18next.t("menuUiHandler:importSession"),
+        handler: () => {
+          confirmSlot(i18next.t("menuUiHandler:importSlotSelect"), () => true, slotId => this.scene.gameData.importData(GameDataType.SESSION, slotId));
+          return true;
+        },
+        keepOpen: true
+      });
+    }
     manageDataOptions.push({
       label: i18next.t("menuUiHandler:exportSession"),
       handler: () => {
@@ -144,24 +145,25 @@ export default class MenuUiHandler extends MessageUiHandler {
               }
             });
           })).then(() => {
-            confirmSlot(i18next.t("menuUiHandler:exportSlotSelect"),
-              i => dataSlots.indexOf(i) > -1,
-              slotId => this.scene.gameData.tryExportData(GameDataType.SESSION, slotId));
-          });
+          confirmSlot(i18next.t("menuUiHandler:exportSlotSelect"),
+            i => dataSlots.indexOf(i) > -1,
+            slotId => this.scene.gameData.tryExportData(GameDataType.SESSION, slotId));
+        });
         return true;
       },
       keepOpen: true
     });
-
-    manageDataOptions.push({
-      label: i18next.t("menuUiHandler:importData"),
-      handler: () => {
-        this.scene.gameData.importData(GameDataType.SYSTEM);
-        return true;
-      },
-      keepOpen: true
-    });
-
+    if (Utils.isLocal) {
+      manageDataOptions.push({
+        label: i18next.t("menuUiHandler:importData"),
+        handler: () => {
+          ui.revertMode();
+          this.scene.gameData.importData(GameDataType.SYSTEM);
+          return true;
+        },
+        keepOpen: true
+      });
+    }
     manageDataOptions.push(
       {
         label: i18next.t("menuUiHandler:exportData"),
@@ -206,6 +208,14 @@ export default class MenuUiHandler extends MessageUiHandler {
         label: "GitHub",
         handler: () => {
           window.open(githubUrl, "_blank").focus();
+          return true;
+        },
+        keepOpen: true
+      },
+      {
+        label: "Reddit",
+        handler: () => {
+          window.open(redditUrl, "_blank").focus();
           return true;
         },
         keepOpen: true
@@ -262,83 +272,83 @@ export default class MenuUiHandler extends MessageUiHandler {
         }
       }
       switch (adjustedCursor) {
-        case MenuOptions.GAME_SETTINGS:
-          ui.setOverlayMode(Mode.SETTINGS);
-          success = true;
-          break;
-        case MenuOptions.ACHIEVEMENTS:
-          ui.setOverlayMode(Mode.ACHIEVEMENTS);
-          success = true;
-          break;
-        case MenuOptions.STATS:
-          ui.setOverlayMode(Mode.GAME_STATS);
-          success = true;
-          break;
-        case MenuOptions.VOUCHERS:
-          ui.setOverlayMode(Mode.VOUCHERS);
-          success = true;
-          break;
-        case MenuOptions.EGG_LIST:
-          if (this.scene.gameData.eggs.length) {
-            ui.revertMode();
-            ui.setOverlayMode(Mode.EGG_LIST);
-            success = true;
-          } else {
-            error = true;
-          }
-          break;
-        case MenuOptions.EGG_GACHA:
+      case MenuOptions.GAME_SETTINGS:
+        ui.setOverlayMode(Mode.SETTINGS);
+        success = true;
+        break;
+      case MenuOptions.ACHIEVEMENTS:
+        ui.setOverlayMode(Mode.ACHIEVEMENTS);
+        success = true;
+        break;
+      case MenuOptions.STATS:
+        ui.setOverlayMode(Mode.GAME_STATS);
+        success = true;
+        break;
+      case MenuOptions.VOUCHERS:
+        ui.setOverlayMode(Mode.VOUCHERS);
+        success = true;
+        break;
+      case MenuOptions.EGG_LIST:
+        if (this.scene.gameData.eggs.length) {
           ui.revertMode();
-          ui.setOverlayMode(Mode.EGG_GACHA);
+          ui.setOverlayMode(Mode.EGG_LIST);
           success = true;
-          break;
-        case MenuOptions.MANAGE_DATA:
-          ui.setOverlayMode(Mode.MENU_OPTION_SELECT, this.manageDataConfig);
+        } else {
+          error = true;
+        }
+        break;
+      case MenuOptions.EGG_GACHA:
+        ui.revertMode();
+        ui.setOverlayMode(Mode.EGG_GACHA);
+        success = true;
+        break;
+      case MenuOptions.MANAGE_DATA:
+        ui.setOverlayMode(Mode.MENU_OPTION_SELECT, this.manageDataConfig);
+        success = true;
+        break;
+      case MenuOptions.COMMUNITY:
+        ui.setOverlayMode(Mode.MENU_OPTION_SELECT, this.communityConfig);
+        success = true;
+        break;
+      case MenuOptions.SAVE_AND_QUIT:
+        if (this.scene.currentBattle) {
           success = true;
-          break;
-        case MenuOptions.COMMUNITY:
-          ui.setOverlayMode(Mode.MENU_OPTION_SELECT, this.communityConfig);
-          success = true;
-          break;
-        case MenuOptions.SAVE_AND_QUIT:
-          if (this.scene.currentBattle) {
-            success = true;
-            if (this.scene.currentBattle.turn > 1) {
-              ui.showText(i18next.t("menuUiHandler:losingProgressionWarning"), null, () => {
-                ui.setOverlayMode(Mode.CONFIRM, () => this.scene.gameData.saveAll(this.scene, true, true, true, true).then(() => this.scene.reset(true)), () => {
-                  ui.revertMode();
-                  ui.showText(null, 0);
-                }, false, -98);
-              });
-            } else {
-              this.scene.gameData.saveAll(this.scene, true, true, true, true).then(() => this.scene.reset(true));
-            }
-          } else {
-            error = true;
-          }
-          break;
-        case MenuOptions.LOG_OUT:
-          success = true;
-          const doLogout = () => {
-            Utils.apiFetch("account/logout", true).then(res => {
-              if (!res.ok) {
-                console.error(`Log out failed (${res.status}: ${res.statusText})`);
-              }
-              Utils.setCookie(Utils.sessionIdKey, "");
-              updateUserInfo().then(() => this.scene.reset(true, true));
-            });
-          };
-          if (this.scene.currentBattle) {
+          if (this.scene.currentBattle.turn > 1) {
             ui.showText(i18next.t("menuUiHandler:losingProgressionWarning"), null, () => {
-              ui.setOverlayMode(Mode.CONFIRM, doLogout, () => {
+              ui.setOverlayMode(Mode.CONFIRM, () => this.scene.gameData.saveAll(this.scene, true, true, true, true).then(() => this.scene.reset(true)), () => {
                 ui.revertMode();
                 ui.showText(null, 0);
               }, false, -98);
             });
           } else {
-            doLogout();
+            this.scene.gameData.saveAll(this.scene, true, true, true, true).then(() => this.scene.reset(true));
           }
-          break;
+        } else {
+          error = true;
+        }
+        break;
+      case MenuOptions.LOG_OUT:
+        success = true;
+        const doLogout = () => {
+          Utils.apiFetch("account/logout", true).then(res => {
+            if (!res.ok) {
+              console.error(`Log out failed (${res.status}: ${res.statusText})`);
+            }
+            Utils.setCookie(Utils.sessionIdKey, "");
+            updateUserInfo().then(() => this.scene.reset(true, true));
+          });
+        };
+        if (this.scene.currentBattle) {
+          ui.showText(i18next.t("menuUiHandler:losingProgressionWarning"), null, () => {
+            ui.setOverlayMode(Mode.CONFIRM, doLogout, () => {
+              ui.revertMode();
+              ui.showText(null, 0);
+            }, false, -98);
+          });
+        } else {
+          doLogout();
+        }
+        break;
       }
     } else if (button === Button.CANCEL) {
       success = true;
@@ -349,20 +359,20 @@ export default class MenuUiHandler extends MessageUiHandler {
       });
     } else {
       switch (button) {
-        case Button.UP:
-          if (this.cursor) {
-            success = this.setCursor(this.cursor - 1);
-          } else {
-            success = this.setCursor(this.menuOptions.length - 1);
-          }
-          break;
-        case Button.DOWN:
-          if (this.cursor + 1 < this.menuOptions.length) {
-            success = this.setCursor(this.cursor + 1);
-          } else {
-            success = this.setCursor(0);
-          }
-          break;
+      case Button.UP:
+        if (this.cursor) {
+          success = this.setCursor(this.cursor - 1);
+        } else {
+          success = this.setCursor(this.menuOptions.length - 1);
+        }
+        break;
+      case Button.DOWN:
+        if (this.cursor + 1 < this.menuOptions.length) {
+          success = this.setCursor(this.cursor + 1);
+        } else {
+          success = this.setCursor(0);
+        }
+        break;
       }
     }
 
